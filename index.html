@@ -1,0 +1,377 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Egg Opening in Roblox plants vs brainrots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka One', cursive; /* Roblox-style font */
+            background-color: #111827;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        /* Gradient animations */
+        @keyframes secret-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes godly-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Styles for item rarity */
+        .rarity-godly {
+            background: linear-gradient(-45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            animation: godly-gradient-animation 8s ease infinite;
+            box-shadow: 0 0 20px #ff00de55;
+        }
+
+        .rarity-secret {
+            background: linear-gradient(-45deg, #000000, #ffffff, #4d4d4d, #000000);
+            background-size: 400% 400%;
+            animation: secret-gradient-animation 5s ease infinite;
+            box-shadow: 0 0 15px #ffffff55;
+        }
+        
+        .rarity-label {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .case-container {
+            position: relative;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+            border-radius: 1rem;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .case-reel {
+            display: flex;
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .case-item {
+            flex-shrink: 0;
+            width: 150px;
+            height: 180px;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .case-pointer {
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid white;
+            z-index: 10;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+        }
+
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.9);
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Roblox-style Button */
+        .roblox-btn {
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 1rem;
+            padding: 12px 28px;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-transform: uppercase;
+        }
+        .roblox-btn:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+        .roblox-btn:active {
+            transform: scale(0.95);
+            filter: brightness(0.9);
+        }
+        .roblox-btn:disabled {
+            filter: grayscale(0.7);
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .btn-cyan { background-color: #00A2FF; }
+        .btn-purple { background-color: #A255FF; }
+        .btn-green { 
+            background-color: #00B06F;
+            padding: 6px 16px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-5xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-shadow" style="text-shadow: 0 0 15px rgba(41, 196, 255, 0.7);">
+                Lucky Egg Opening in Roblox plants vs brainrots
+            </h1>
+            <p class="text-gray-400 mt-2 font-sans">Click the button to test your luck!</p>
+            <p id="attempts-text" class="text-xl font-semibold text-cyan-400 mt-4"></p>
+        </header>
+
+        <div class="case-container w-full p-4 md:p-6 mb-8">
+            <div class="case-pointer"></div>
+            <div id="case-reel" class="case-reel">
+                <!-- Items will be added via JavaScript -->
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button id="open-button" class="roblox-btn btn-cyan">
+                Open Egg
+            </button>
+        </div>
+    </div>
+    
+    <div id="inventory-section" class="w-full max-w-5xl mx-auto mt-10 hidden">
+        <h2 class="text-2xl font-bold text-center mb-4">Your Winnings</h2>
+        <div id="inventory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 bg-black bg-opacity-20 rounded-lg">
+            <!-- Won items will be displayed here -->
+        </div>
+    </div>
+    
+    <!-- Win Modal -->
+    <div id="modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div class="modal-content bg-gray-800 p-8 rounded-lg shadow-2xl text-center w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4">Congratulations! You received:</h2>
+            <div id="won-item-card" class="mx-auto flex justify-center my-4"></div>
+            <button id="close-modal-button" class="roblox-btn btn-purple">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Code Modal -->
+    <div id="code-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[60] p-4">
+        <div class="modal-content bg-gray-800 p-8 rounded-lg shadow-2xl text-center w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Your Code:</h2>
+            <p id="generated-code" class="text-3xl font-mono bg-gray-900 p-4 rounded-lg tracking-widest my-4"></p>
+            <p class="mt-4 text-gray-300 font-sans">This is your winning code, enter it in Roblox plants vs brainrots</p>
+            <button id="close-code-modal-button" class="mt-8 roblox-btn btn-purple">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reel = document.getElementById('case-reel');
+            const openButton = document.getElementById('open-button');
+            const modal = document.getElementById('modal');
+            const wonItemCardContainer = document.getElementById('won-item-card');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const attemptsText = document.getElementById('attempts-text');
+            const inventorySection = document.getElementById('inventory-section');
+            const inventoryGrid = document.getElementById('inventory-grid');
+            
+            const codeModal = document.getElementById('code-modal');
+            const generatedCodeEl = document.getElementById('generated-code');
+            const closeCodeModalButton = document.getElementById('close-code-modal-button');
+
+            let attemptsLeft = 3;
+            let inventory = [];
+
+            // --- Item Database ---
+            const items = [
+                { name: 'Shroombino', rarity: 'secret', img: 'https://static.wikia.nocookie.net/plants-vs-brainro-ts/images/f/f0/ShroombinoPlant.png/revision/latest/scale-to-width-down/120?cb=20251001084102' },
+                { name: 'Tomatrio', rarity: 'secret', img: 'https://static.wikia.nocookie.net/plants-vs-brainro-ts/images/9/92/Tomatrio.png/revision/latest/scale-to-width-down/120?cb=20251001084030' },
+                { name: 'Mr Carrot', rarity: 'secret', img: 'https://static.wikia.nocookie.net/plants-vs-brainro-ts/images/7/7a/MrCarrot.png/revision/latest/scale-to-width-down/120?cb=20251001084215' },
+                { name: 'Carnivorous Plant', rarity: 'godly', img: 'https://static.wikia.nocookie.net/plants-vs-brainro-ts/images/2/2f/CarnivorousPlant.png/revision/latest/scale-to-width-down/120?cb=20251001084259' },
+                { name: 'Cocotank', rarity: 'godly', img: 'https://static.wikia.nocookie.net/plants-vs-brainro-ts/images/c/ca/CocoTank.png/revision/latest/scale-to-width-down/120?cb=20251001083515' },
+            ];
+
+            // --- Drop Chances ---
+            const chances = {
+                secret: 0.95,
+                godly: 0.05
+            };
+            
+            function createItemCard(item, isInventory = false) {
+                 const cardClasses = isInventory ? 'case-item m-0 rounded-lg' : 'case-item m-2 rounded-lg';
+                return `
+                    <div class="${cardClasses} rarity-${item.rarity} flex flex-col items-center justify-center p-2 text-center">
+                        <img src="${item.img}" alt="${item.name}" class="w-24 h-24 object-contain mb-2 rounded-md">
+                        <span class="font-semibold text-sm leading-tight">${item.name}</span>
+                        <span class="rarity-label text-xs font-bold px-2 py-1 rounded-full mt-1">${item.rarity.toUpperCase()}</span>
+                    </div>
+                `;
+            }
+            
+            function updateAttemptsDisplay() {
+                attemptsText.textContent = `Attempts left: ${attemptsLeft}`;
+            }
+
+            function renderInventory() {
+                if (inventory.length > 0) {
+                    inventorySection.classList.remove('hidden');
+                }
+                inventoryGrid.innerHTML = inventory.map(item => `
+                    <div class="flex flex-col items-center">
+                        ${createItemCard(item, true)}
+                        <button class="get-code-button mt-2 roblox-btn btn-green">Get</button>
+                    </div>
+                `).join('');
+            }
+            
+            function generateRandomCode(length) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+
+            function pickWinningItem() {
+                if (items.length === 0) return null;
+                const rand = Math.random();
+                let cumulativeChance = 0;
+                const rarityOrder = ['godly', 'secret'];
+                for (const rarity of rarityOrder) {
+                    cumulativeChance += chances[rarity] || 0;
+                    if (rand < cumulativeChance) {
+                        const itemsOfRarity = items.filter(item => item.rarity === rarity);
+                        if (itemsOfRarity.length > 0) {
+                           return itemsOfRarity[Math.floor(Math.random() * itemsOfRarity.length)];
+                        }
+                    }
+                }
+                return items[items.length - 1];
+            }
+
+            function generateReel() {
+                reel.innerHTML = '';
+                if (items.length === 0) {
+                    reel.innerHTML = `<div class="p-8 text-center w-full text-gray-400">Add items to begin</div>`;
+                    openButton.disabled = true;
+                    return null;
+                }
+                openButton.disabled = false;
+                let reelItems = [];
+                for (let i = 0; i < 100; i++) {
+                    reelItems.push(items[Math.floor(Math.random() * items.length)]);
+                }
+                const winningItem = pickWinningItem();
+                if (winningItem) {
+                    reelItems.splice(90, 1, winningItem);
+                }
+                reel.innerHTML = reelItems.map(item => createItemCard(item, false)).join('');
+                return winningItem;
+            }
+
+            function openCase() {
+                if (attemptsLeft <= 0) return;
+                
+                const winningItem = generateReel();
+                if (!winningItem) return;
+
+                openButton.disabled = true;
+                attemptsLeft--;
+                updateAttemptsDisplay();
+                
+                reel.style.transition = 'none';
+                reel.style.transform = 'translateX(0)';
+                
+                setTimeout(() => {
+                    const itemWidth = 150 + 16;
+                    const containerWidth = reel.parentElement.clientWidth;
+                    const targetPosition = (90 * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
+                    
+                    reel.style.transition = 'transform 5s cubic-bezier(0.1, 0.5, 0.2, 1)';
+                    reel.style.transform = `translateX(-${targetPosition}px)`;
+
+                    reel.addEventListener('transitionend', () => {
+                        inventory.push(winningItem);
+                        renderInventory();
+                        showModal(winningItem);
+                    }, { once: true });
+                }, 100);
+            }
+
+            function showModal(item) {
+                wonItemCardContainer.innerHTML = createItemCard(item, true);
+                modal.classList.add('active');
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+                if (attemptsLeft > 0) {
+                    openButton.disabled = false;
+                } else {
+                    openButton.textContent = 'No attempts left';
+                    openButton.disabled = true;
+                }
+            }
+            
+            function showCodeModal() {
+                const code = generateRandomCode(6);
+                generatedCodeEl.textContent = code;
+                codeModal.classList.add('active');
+            }
+            
+            function closeCodeModal() {
+                codeModal.classList.remove('active');
+            }
+
+            openButton.addEventListener('click', openCase);
+            closeModalButton.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            
+            inventoryGrid.addEventListener('click', (e) => {
+                if (e.target.classList.contains('get-code-button')) {
+                    showCodeModal();
+                }
+            });
+            
+            closeCodeModalButton.addEventListener('click', closeCodeModal);
+            codeModal.addEventListener('click', (e) => {
+                if (e.target === codeModal) closeCodeModal();
+            });
+
+            // --- Initial Setup ---
+            updateAttemptsDisplay();
+            generateReel();
+        });
+    </script>
+</body>
+</html>
+
